@@ -58,7 +58,19 @@ class SessionUser {
     }
   }
 
-  Future<void> logout() async {}
+  Future<void> logout() async {
+    this.jwt = null;
+    //토큰 없애버림
+    this.isLogin = false;
+    this.user = null;
+
+    await secureStorage.delete(key: "jwt");
+    //awit 이유: io 발생하니까 이거 안기다려주면 자동 로그인 됨
+
+    Navigator.pushNamedAndRemoveUntil(mContext!, "/login", (route) => false);
+    //제일 마지막에 처리 돼야함
+    //화면에 접근하는 mContext 들고옴
+  }
 }
 
 //2. 창고
