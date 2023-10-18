@@ -1,11 +1,13 @@
 //로그인은 전역적으로 관리할 데이터-> 프로바이더
 //화면에서 필요한 데이터 = 화면과 1:1 매칭 -> 뷰모델
 
-//1. 창고 데이터
+import 'package:flutter/material.dart';
+import 'package:flutter_blog/data/dto/post_request.dart';
 import 'package:flutter_blog/data/dto/response_dto.dart';
 import 'package:flutter_blog/data/model/post.dart';
 import 'package:flutter_blog/data/provider/session_provider.dart';
 import 'package:flutter_blog/data/repository/post_repository.dart';
+import 'package:flutter_blog/main.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class PostListModel {
@@ -18,6 +20,8 @@ class PostListViewModel extends StateNotifier<PostListModel?> {
   //제일 첨에는 null이 옴
   //뷰모델은 무조건 extends
   PostListViewModel(super._state, this.ref); //PostListModel의 상태
+
+  final mContext = navigatorKey.currentContext;
 
   Ref ref;
 
@@ -34,6 +38,28 @@ class PostListViewModel extends StateNotifier<PostListModel?> {
     ResponseDTO responseDTO =
         await PostRepository().fetchPostList(sessionUser.jwt!);
     state = PostListModel(responseDTO.data);
+  }
+
+  //글쓰기
+  Future<void> notifyAdd(PostSaveReqDTO dto) async {
+    SessionUser sessionUser = ref.read(sessionProvider);
+
+    ResponseDTO responseDTO =
+        await PostRepository().fetchPost(sessionUser.jwt!, dto);
+
+    if (responseDTO.code == 1) {
+      Post newPost = responseDTO.data as Post; // 1. dynamic(Post) -> 다운캐스팅
+      List<Post> newPosts = [
+        newPost,
+        ...state!.posts
+      ]; // 2. 기존 상태에 데이터 추가 [전개연산자]
+      state = PostListModel(
+          newPosts); // 3. 뷰모델(창고) 데이터 갱신이 완료 -> watch 구독자는 rebuild됨.
+      Navigator.pop(mContext!); // 4. 글쓰기 화면 pop
+    } else {
+      ScaffoldMessenger.of(mContext!).showSnackBar(
+          SnackBar(content: Text("게시물 작성 실패 : ${responseDTO.msg}")));
+    }
   }
 }
 

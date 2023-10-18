@@ -70,6 +70,7 @@ class SessionUser {
     Navigator.pushNamedAndRemoveUntil(mContext!, "/login", (route) => false);
     //제일 마지막에 처리 돼야함
     //화면에 접근하는 mContext 들고옴
+    //최종적으로 로그아웃하면 로그인 페이지만 남게됨
   }
 }
 
