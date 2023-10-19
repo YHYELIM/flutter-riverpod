@@ -45,7 +45,7 @@ class PostListViewModel extends StateNotifier<PostListModel?> {
     SessionUser sessionUser = ref.read(sessionProvider);
 
     ResponseDTO responseDTO =
-        await PostRepository().fetchPost(sessionUser.jwt!, dto);
+        await PostRepository().savePost(sessionUser.jwt!, dto);
 
     if (responseDTO.code == 1) {
       Post newPost = responseDTO.data as Post; // 1. dynamic(Post) -> 다운캐스팅
@@ -61,6 +61,7 @@ class PostListViewModel extends StateNotifier<PostListModel?> {
           SnackBar(content: Text("게시물 작성 실패 : ${responseDTO.msg}")));
     }
   }
+  //
 }
 
 //3. 창고 관리자
